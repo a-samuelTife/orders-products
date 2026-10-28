@@ -1,0 +1,30 @@
+services:
+  products:
+    build: ./products
+    image: products:dev
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - backend
+
+  orders:
+    build: ./orders
+    image: orders:dev
+    ports:
+      - "3001:3001"
+    environment:
+      PRODUCTS_URL: http://products:3000
+    depends_on:
+      products:
+        condition: service_healthy
+    networks:
+      - backend
+
+networks:
+  backend:
