@@ -1,0 +1,55 @@
+name: products-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "products/**"
+      - ".github/workflows/products.yml"
+  pull_request:
+    paths:
+      - "products/**"
+      - ".github/workflows/products.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: products
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: products/package-lock.json
+
+      - run: npm ci
+      - run: npm test
+
+  build-and-push:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase the owner name
+        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./products
+          push: true
+          tags: ghcr.io/${{ env.OWNER }}/products:${{ github.sha }}
