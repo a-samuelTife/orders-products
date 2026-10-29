@@ -1,6 +1,19 @@
 const express = require("express");
 const app = express();
 
+// Secret key that callers must send. Comes from an environment variable.
+const API_KEY = process.env.API_KEY;
+
+// Blocking the requests that don't have the right key.
+app.use((req, res, next) => {
+  // If no key is configured, or it's the health check, let it through
+  if (!API_KEY || req.path === "/health") return next();
+
+  if (req.get("x-api-key") !== API_KEY) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+});
 
 const products = [
   { id: 1, name: "Laptop", price: 850 },

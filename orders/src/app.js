@@ -24,7 +24,9 @@ app.post("/orders", async (req, res) => {
 
   try {
     // Orders calls Products over HTTP. This is service-to-service communication.
-    const response = await fetch(`${PRODUCTS_URL}/products/${productId}`);
+    const response = await fetch(`${PRODUCTS_URL}/products/${productId}`, {
+      headers: { "x-api-key": process.env.PRODUCTS_API_KEY || "" },
+    });
 
     if (response.status === 404) {
       return res.status(404).json({ error: "Product not found" });
