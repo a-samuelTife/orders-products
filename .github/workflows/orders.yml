@@ -34,22 +34,22 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Lowercase the owner name
-        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
-
-      - uses: docker/login-action@v3
+      - uses: azure/login@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to ACR
+        run: az acr login --name ${{ vars.ACR_NAME }}
 
       - uses: docker/build-push-action@v6
         with:
           context: ./orders
           push: true
-          tags: ghcr.io/${{ env.OWNER }}/orders:${{ github.sha }}
+          tags: ${{ vars.ACR_NAME }}.azurecr.io/orders:${{ github.sha }}
