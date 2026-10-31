@@ -15,3 +15,8 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+variable "aks_vm_size" {
+  description = "VM size for the AKS worker node"
+  type        = string
+  default     = "Standard_B2ls_v2"
+}
