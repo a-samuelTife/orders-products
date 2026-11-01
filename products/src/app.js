@@ -1,5 +1,8 @@
 const express = require("express");
+const { observability, metricsHandler, log } = require("./observability");
 const app = express();
+app.use(observability);
+app.get("/metrics", metricsHandler);
 
 // Secret key that callers must send. Comes from an environment variable.
 const API_KEY = process.env.API_KEY;
