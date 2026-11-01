@@ -7,14 +7,15 @@
     "test": "tests"
   },
   "scripts": {
-  "start": "node src/index.js",
-  "test": "node --test"
+    "start": "node src/index.js",
+    "test": "node --test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "prom-client": "^15.1.3"
   }
 }

@@ -1,5 +1,8 @@
 const express = require("express");
+const { observability, metricsHandler, log } = require("./observability");
 const app = express();
+app.use(observability);
+app.get("/metrics", metricsHandler);
 app.use(express.json()); // lets us read JSON request bodies
 
 // Where is the Products service? Read it from an environment variable.
@@ -46,7 +49,10 @@ app.post("/orders", async (req, res) => {
     orders.push(order);
     res.status(201).json(order);
   } catch (err) {
-    console.error("Failed to reach Products service:", err.message);
+    log("error", "failed to reach products service", {
+      error: err.message,
+      productId,
+    });
     res.status(502).json({ error: "Products service unavailable" });
   }
 });

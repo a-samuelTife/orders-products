@@ -1,0 +1,20 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    ports:
+      - "3030:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?GRAFANA_PASSWORD is not set}
+    volumes:
+      - ./monitoring/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    networks:
+      - backend
